@@ -53,7 +53,7 @@ def monitor():
                                 
                                 if nome not in historico:
                                     historico[nome] = p_new
-                                elif p_new < historico[nome]:
+                                elif True:
                                     link = gerar_link(card.select_one('a')['href'])
                                     foto = (card.select_one('img').get('data-src') or card.select_one('img').get('src'))
                                     sacola.append({
