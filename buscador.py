@@ -9,6 +9,7 @@ app = Flask('')
 def home(): return "Bot Online!"
 def run(): app.run(host='0.0.0.0', port=8080)
 
+# --- CONFIGURAÇÕES ---
 TOKEN_TELEGRAM = "8610297805:AAHq2rzzImn9WEfOPdRrz4y_xM83MQ1qx6w"
 CHAT_ID = "2050785699"
 MEU_TAG_AFILIADO = "gd20260319125059"
@@ -19,6 +20,17 @@ TERMOS_BUSCA = ["perfume masculino", "camiseta masculina", "tenis masculino", "r
 def gerar_link(url):
     limpa = url.split('?')[0].split('#')[0]
     return f"{limpa}?matt_tool={MEU_TOOL_ID}&matt_word={MEU_TAG_AFILIADO}"
+
+def obter_chamada_impacto(nome):
+    """Gera aquelas frases que chamam a atenção no topo da mensagem"""
+    n = nome.lower()
+    if "perfume" in n:
+        return random.choice(["CHEIRINHO DE SUCESSO! 🔥", "PRESENÇA MARCANTE! 🔥", "PREÇO DE OUTRO MUNDO! 🔥", "TÁ DADO ESSE PERFUME! 🔥"])
+    if "camiseta" in n or "camisa" in n:
+        return random.choice(["ESTILO NO PRECINHO! 🔥", "BÁSICA DE RESPEITO! 🔥", "TÁ DADA ESSA PEÇA! 🔥", "PRA RENOVAR O GUARDA-ROUPA! 🔥"])
+    if "tênis" in n or "tenis" in n:
+        return random.choice(["PISANTE NOVO NO PÉ! 🔥", "CONFORTO E ESTILO! 🔥", "TÁ DADO ESSE TÊNIS! 🔥", "OPORTUNIDADE ÚNICA! 🔥"])
+    return random.choice(["TÁ DADO DEMAIS! 🔥", "OFERTA DO DIA! 🔥", "CORRE QUE ACABA! 🔥"])
 
 def monitor():
     scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False})
@@ -52,47 +64,44 @@ def monitor():
                                 titulo = card.select_one('.poly-component__title') or card.select_one('h2')
                                 nome = titulo.text.strip()
                                 
-                                enviar_agora = False
-                                motivo = ""
-
-                                # LÓGICA DE DECISÃO MELHORADA
+                                deve_enviar = False
                                 if nome not in historico:
-                                    # É a primeira vez que vemos o item? Se tiver desconto "De/Por", já manda!
                                     historico[nome] = p_new
-                                    if p_new < p_old:
-                                        enviar_agora = True
-                                        motivo = "🔥 OFERTA ENCONTRADA!"
+                                    if p_new < p_old: deve_enviar = True
                                 elif p_new < historico[nome]:
-                                    # O preço baixou comparado ao que tínhamos guardado
-                                    enviar_agora = True
-                                    motivo = "📉 PREÇO BAIXOU MAIS!"
                                     historico[nome] = p_new
+                                    deve_enviar = True
                                 
-                                if enviar_agora:
+                                if deve_enviar:
                                     link = gerar_link(card.select_one('a')['href'])
                                     img_tag = card.select_one('img')
                                     foto = img_tag.get('data-src') or img_tag.get('src')
+                                    chamada = obter_chamada_impacto(nome)
                                     
-                                    sacola.append({
-                                        'foto': foto, 
-                                        'msg': f"{motivo}\n\n✅ {nome}\n\nDe R$ {p_old:.2f} ❌\nPor R$ {p_new:.2f} ✅\n\n🔗 Link: {link}"
-                                    })
+                                    # --- O SEU NOVO FORMATO AQUI ---
+                                    msg = (f"<b>{chamada}</b>\n\n"
+                                           f"✅ {nome}\n\n"
+                                           f"De R$ {p_old:.2f} ❌\n"
+                                           f"Por R$ {p_new:.2f} ✅\n\n"
+                                           f"🔗 Link: {link}")
+                                    
+                                    sacola.append({'foto': foto, 'msg': msg})
                         except: continue
-                time.sleep(1)
+                time.sleep(2)
             except: continue
 
         if sacola:
-            print(f"📦 Enviando {len(sacola)} ofertas...", flush=True)
+            print(f"📦 Enviando {len(sacola)} ofertas no novo formato...", flush=True)
             random.shuffle(sacola)
             for item in sacola:
                 requests.post(f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendPhoto", 
                              data={"chat_id": CHAT_ID, "photo": item['foto'], "caption": item['msg'], "parse_mode": "HTML"})
                 time.sleep(15)
         else:
-            print("🔍 Sem mudanças relevantes nesta rodada.", flush=True)
+            print("🔍 Sem novidades nesta rodada.", flush=True)
 
         with open(ARQUIVO_HISTORICO, 'w') as f: json.dump(historico, f, indent=4)
-        print("💤 Ciclo finalizado. Aguardando 30 minutos...", flush=True)
+        print("💤 Ciclo finalizado. Dormindo 30 min...", flush=True)
         time.sleep(1800)
 
 if __name__ == "__main__":
