@@ -14,7 +14,7 @@ CHAT_ID = "2050785699"
 MEU_TAG_AFILIADO = "gd20260319125059"
 MEU_TOOL_ID = "64029233"
 ARQUIVO_HISTORICO = "historico_precos.json"
-TERMOS_BUSCA = ["perfume masculino", "camiseta masculina ribana", "tenis nike masculino", "relogio masculino"]
+TERMOS_BUSCA = ["perfume masculino", "camiseta masculina", "tenis masculino", "relogio masculino"]
 
 def gerar_link(url):
     limpa = url.split('?')[0].split('#')[0]
@@ -53,7 +53,7 @@ def monitor():
                                 
                                 if nome not in historico:
                                     historico[nome] = p_new
-                                elif True:
+                                elif p_new < historico[nome]:
                                     link = gerar_link(card.select_one('a')['href'])
                                     foto = (card.select_one('img').get('data-src') or card.select_one('img').get('src'))
                                     sacola.append({
