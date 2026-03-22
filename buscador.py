@@ -23,7 +23,6 @@ def gerar_link(url):
 def monitor():
     scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False})
     
-    # Carrega histórico
     if os.path.exists(ARQUIVO_HISTORICO):
         with open(ARQUIVO_HISTORICO, 'r') as f: historico = json.load(f)
     else: historico = {}
@@ -47,36 +46,50 @@ def monitor():
                         try:
                             p_tags = card.select('.andes-money-amount__fraction')
                             if len(p_tags) >= 2:
+                                p_old = float(p_tags[0].text.replace('.',''))
                                 p_new = float(p_tags[1].text.replace('.',''))
+                                
                                 titulo = card.select_one('.poly-component__title') or card.select_one('h2')
                                 nome = titulo.text.strip()
                                 
+                                enviar_agora = False
+                                motivo = ""
+
+                                # LÓGICA DE DECISÃO MELHORADA
                                 if nome not in historico:
+                                    # É a primeira vez que vemos o item? Se tiver desconto "De/Por", já manda!
                                     historico[nome] = p_new
+                                    if p_new < p_old:
+                                        enviar_agora = True
+                                        motivo = "🔥 OFERTA ENCONTRADA!"
                                 elif p_new < historico[nome]:
+                                    # O preço baixou comparado ao que tínhamos guardado
+                                    enviar_agora = True
+                                    motivo = "📉 PREÇO BAIXOU MAIS!"
+                                    historico[nome] = p_new
+                                
+                                if enviar_agora:
                                     link = gerar_link(card.select_one('a')['href'])
-                                    foto = (card.select_one('img').get('data-src') or card.select_one('img').get('src'))
+                                    img_tag = card.select_one('img')
+                                    foto = img_tag.get('data-src') or img_tag.get('src')
+                                    
                                     sacola.append({
                                         'foto': foto, 
-                                        'msg': f"🔥 <b>PREÇO BAIXOU!</b>\n\n✅ {nome}\n\nDe R$ {historico[nome]:.2f} ❌\nPor R$ {p_new:.2f} ✅\n\n🔗 Link: {link}"
+                                        'msg': f"{motivo}\n\n✅ {nome}\n\nDe R$ {p_old:.2f} ❌\nPor R$ {p_new:.2f} ✅\n\n🔗 Link: {link}"
                                     })
-                                    historico[nome] = p_new
                         except: continue
-                else:
-                    print(f"⚠️ Erro no ML ({termo}): Status {res.status_code}", flush=True)
-            except Exception as e:
-                print(f"❌ Falha de conexão: {e}", flush=True)
-            time.sleep(2)
+                time.sleep(1)
+            except: continue
 
         if sacola:
-            print(f"📦 Enviando {len(sacola)} ofertas misturadas...", flush=True)
+            print(f"📦 Enviando {len(sacola)} ofertas...", flush=True)
             random.shuffle(sacola)
             for item in sacola:
                 requests.post(f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendPhoto", 
                              data={"chat_id": CHAT_ID, "photo": item['foto'], "caption": item['msg'], "parse_mode": "HTML"})
                 time.sleep(15)
         else:
-            print("🔍 Nada novo com preço menor nesta rodada.", flush=True)
+            print("🔍 Sem mudanças relevantes nesta rodada.", flush=True)
 
         with open(ARQUIVO_HISTORICO, 'w') as f: json.dump(historico, f, indent=4)
         print("💤 Ciclo finalizado. Aguardando 30 minutos...", flush=True)
