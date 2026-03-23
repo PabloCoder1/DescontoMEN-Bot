@@ -15,6 +15,7 @@ CHAT_ID = "2050785699"
 MEU_TAG_AFILIADO = "gd20260319125059"
 MEU_TOOL_ID = "64029233"
 ARQUIVO_HISTORICO = "historico_precos.json"
+# Categorias organizadas para facilitar o controle
 TERMOS_BUSCA = ["perfume masculino", "camiseta masculina", "tenis masculino", "relogio masculino"]
 
 def gerar_link(url):
@@ -22,14 +23,13 @@ def gerar_link(url):
     return f"{limpa}?matt_tool={MEU_TOOL_ID}&matt_word={MEU_TAG_AFILIADO}"
 
 def obter_chamada_impacto(nome):
-    """Gera aquelas frases que chamam a atenção no topo da mensagem"""
     n = nome.lower()
     if "perfume" in n:
-        return random.choice(["CHEIRINHO DE SUCESSO! 🔥", "PRESENÇA MARCANTE! 🔥", "PREÇO DE OUTRO MUNDO! 🔥", "TÁ DADO ESSE PERFUME! 🔥"])
+        return random.choice(["CHEIRINHO DE SUCESSO! 🔥", "PRESENÇA MARCANTE! 🔥", "TÁ DADO ESSE PERFUME! 🔥"])
     if "camiseta" in n or "camisa" in n:
-        return random.choice(["ESTILO NO PRECINHO! 🔥", "BÁSICA DE RESPEITO! 🔥", "TÁ DADA ESSA PEÇA! 🔥", "PRA RENOVAR O GUARDA-ROUPA! 🔥"])
+        return random.choice(["ESTILO NO PRECINHO! 🔥", "BÁSICA DE RESPEITO! 🔥", "TÁ DADA ESSA PEÇA! 🔥"])
     if "tênis" in n or "tenis" in n:
-        return random.choice(["PISANTE NOVO NO PÉ! 🔥", "CONFORTO E ESTILO! 🔥", "TÁ DADO ESSE TÊNIS! 🔥", "OPORTUNIDADE ÚNICA! 🔥"])
+        return random.choice(["PISANTE NOVO NO PÉ! 🔥", "TÁ DADO ESSE TÊNIS! 🔥", "OPORTUNIDADE ÚNICA! 🔥"])
     return random.choice(["TÁ DADO DEMAIS! 🔥", "OFERTA DO DIA! 🔥", "CORRE QUE ACABA! 🔥"])
 
 def monitor():
@@ -44,10 +44,11 @@ def monitor():
     while True:
         agora = time.strftime('%H:%M:%S')
         print(f"⏰ {agora} - Iniciando varredura...", flush=True)
-        sacola = []
+        sacola_geral = []
         
         for termo in TERMOS_BUSCA:
             url = f"https://lista.mercadolivre.com.br/{termo.replace(' ', '-')}"
+            ofertas_da_categoria = []
             try:
                 res = scraper.get(url, timeout=20)
                 if res.status_code == 200:
@@ -56,6 +57,16 @@ def monitor():
                     
                     for card in cards:
                         try:
+                            # 1. Pegar Avaliação (Rating)
+                            rating_tag = card.select_one('.poly-reviews__rating') or card.select_one('.ui-search-reviews__rating-number')
+                            rating = float(rating_tag.text.replace(',', '.')) if rating_tag else 0
+                            
+                            # Filtro de Avaliação solicitado
+                            limite_rating = 4.7 if "perfume" in termo.lower() else 4.6
+                            if rating > 0 and rating < limite_rating:
+                                continue # Ignora se a nota for baixa
+
+                            # 2. Pegar Preços
                             p_tags = card.select('.andes-money-amount__fraction')
                             if len(p_tags) >= 2:
                                 p_old = float(p_tags[0].text.replace('.',''))
@@ -78,27 +89,32 @@ def monitor():
                                     foto = img_tag.get('data-src') or img_tag.get('src')
                                     chamada = obter_chamada_impacto(nome)
                                     
-                                    # --- O SEU NOVO FORMATO AQUI ---
                                     msg = (f"<b>{chamada}</b>\n\n"
                                            f"✅ {nome}\n\n"
                                            f"De R$ {p_old:.2f} ❌\n"
                                            f"Por R$ {p_new:.2f} ✅\n\n"
                                            f"🔗 Link: {link}")
                                     
-                                    sacola.append({'foto': foto, 'msg': msg})
+                                    ofertas_da_categoria.append({'foto': foto, 'msg': msg})
                         except: continue
+                
+                # Para garantir que fique "mestiço", pegamos apenas as 4 melhores ofertas de cada categoria por ciclo
+                random.shuffle(ofertas_da_categoria)
+                sacola_geral.extend(ofertas_da_categoria[:4])
+                
                 time.sleep(2)
             except: continue
 
-        if sacola:
-            print(f"📦 Enviando {len(sacola)} ofertas no novo formato...", flush=True)
-            random.shuffle(sacola)
-            for item in sacola:
+        if sacola_geral:
+            # Embaralha tudo para misturar perfumes, relógios e roupas
+            random.shuffle(sacola_geral)
+            print(f"📦 Enviando {len(sacola_geral)} ofertas misturadas...", flush=True)
+            for item in sacola_geral:
                 requests.post(f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendPhoto", 
                              data={"chat_id": CHAT_ID, "photo": item['foto'], "caption": item['msg'], "parse_mode": "HTML"})
-                time.sleep(15)
+                time.sleep(20) # Aumentado para 20s para evitar spam no Telegram
         else:
-            print("🔍 Sem novidades nesta rodada.", flush=True)
+            print("🔍 Sem novidades relevantes nesta rodada.", flush=True)
 
         with open(ARQUIVO_HISTORICO, 'w') as f: json.dump(historico, f, indent=4)
         print("💤 Ciclo finalizado. Dormindo 30 min...", flush=True)
