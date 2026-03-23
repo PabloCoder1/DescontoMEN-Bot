@@ -1,1 +1,15 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
+# Ambientes Virtuais
+venv/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# ARQUIVOS SENSÍVEIS (O Git vai ignorar estes)
+config.py
+gerar_token.py
+historico_precos.json
+
+# Pasta do VS Code
+.vscode/

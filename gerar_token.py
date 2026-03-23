@@ -6,7 +6,7 @@ CLIENT_SECRET = "aB5Oo52uktBbTwVVATP4tRyzoreymwgT"
 REDIRECT_URI = "https://www.google.com" # Deve ser IGUAL ao que está no dashboard
 
 # O código que você acabou de me passar
-CODE = "TG-69bf382b38c3f70001f05ca9-3279577120"
+CODE = "TG-69c1bdbac904c8000152dc6d-3279577120"
 
 def trocar_codigo_por_token():
     url = "https://api.mercadolibre.com/oauth/token"
