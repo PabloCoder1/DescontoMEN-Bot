@@ -183,6 +183,19 @@ def monitor():
         print("😴 Dormindo por 10 minutos antes da próxima volta...", flush=True)
         time.sleep(600)
 
+def self_ping():
+    """Faz um ping na própria URL para evitar hibernação"""
+    url = "https://monitor-ofertas-ml-v1.onrender.com"
+    while True:
+        try:
+            requests.get(url, timeout=10)
+            print("🛰️ Self-Ping: Mantendo o bot acordado...", flush=True)
+        except:
+            pass
+        time.sleep(600) # Pinga a cada 10 minutos
+
+# No final do arquivo, mude o início para:
 if __name__ == "__main__":
     Thread(target=run).start()
+    Thread(target=self_ping).start() # Nova thread de auto-ping
     monitor()
