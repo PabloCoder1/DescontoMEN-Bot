@@ -326,3 +326,111 @@ Group ID: HaItSqbexJw55Po8UNovEn
 Image: C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\temp_oferta.jpg
 Caption: *Perfumes Masculinos Vivinevo Farsight For Men Edt 100 Ml*De: R$ 191.00 - Por: R$ 115.00> Cheirinho de importado pagando pouco!Compre aqui:https://tinyurl.com/24zuz9x4
 --------------------
+Date: 24/3/2026
+Time: 13:7
+Group ID: I2yymBhEzKWHJprz81eptU
+Image: temp_images_wa\temp_1774368452.jpg
+Caption: *RELGIO ORIENT AUTOMTICO*De ~R$1998.00~Por *R$1428.00*> Ta barato demais!Compre aqui: https://tinyurl.com/25wow598
+--------------------
+Date: 24/3/2026
+Time: 13:10
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774368639.jpg
+Caption: *CAMISETA OVERSIZED PARA ACADEMIA MUSCULAO TREINO*De ~R$75.00~Por *R$45.00*> Basica de respeito!Compre aqui: https://tinyurl.com/26kw89x8
+--------------------
+Date: 24/3/2026
+Time: 13:12
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774368728.jpg
+Caption: *KIT 3 CAMISETAS PLUS SIZE MASCULINAS*De ~R$78.00~Por *R$70.00*> Peca coringa!Compre aqui: https://tinyurl.com/23b6toph
+--------------------
+Date: 24/3/2026
+Time: 13:23
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774369428.jpg
+Caption: *TNIS SAPATNIS POLO PLUS*De ~R$99.00~Por *R$67.00*> Preco de bug!Compre aqui: https://tinyurl.com/23zjg26j
+--------------------
+Date: 24/3/2026
+Time: 13:25
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774369522.jpg
+Caption: *PERFUME RABANNE PHANTOM EAU DE TOILETTE*De ~R$769.00~Por *R$628.00*> Presena marcante!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 13:37
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774370223.jpg
+Caption: *RELGIO TECHNOS*De ~R$599.00~Por *R$331.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 13:38
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774370302.jpg
+Caption: *KIT 10 CAMISAS CAMISETAS MASCULINAS ATACADO*De ~R$300.00~Por *R$195.00*> Peca coringa!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 13:43
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774370615.jpg
+Caption: *RELGIO AUTOMTICO ORIENT NH3SS010 AO INOXIDVEL*De ~R$1098.00~Por *R$109.00*> Corre que acaba!Compre aqui: https://tinyurl.com/23na3exu
+--------------------
+Date: 24/3/2026
+Time: 13:45
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774370753.jpg
+Caption: *TNIS ADIDAS RESPONSE RUNNER 2.0*De ~R$519.00~Por *R$320.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 13:47
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774370872.jpg
+Caption: *TNIS ASICS NOVABLAST 5*De ~R$999.00~Por *R$764.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ybxps2g
+--------------------
+Date: 24/3/2026
+Time: 14:0
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774371619.jpg
+Caption: *RELGIO DE PULSO ORIENT COM CORRIA*De ~R$429.00~Por *R$272.00*> Ta barato demais!Compre aqui: https://tinyurl.com/2y3zu7db
+--------------------
+Date: 24/3/2026
+Time: 14:2
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774371763.jpg
+Caption: *RELGIO CASIO*De ~R$259.00~Por *R$129.00*> Ta barato demais!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 14:4
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774371893.jpg
+Caption: *DEO PARFUM NATURA HOMEM DOM*De ~R$199.00~Por *R$139.00*> Preco de bug!Compre aqui: https://tinyurl.com/2yd3dqk7
+--------------------
+Date: 24/3/2026
+Time: 14:51
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774374677.jpg
+Caption: *O BOTICRIO BOTICA 214 FIJI FOUGRE*De ~R$239.00~Por *R$119.00*> Preco de bug!Compre aqui: https://tinyurl.com/2douyd6s
+--------------------
+Date: 24/3/2026
+Time: 14:53
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774374820.jpg
+Caption: *RELGIO DE MARCA ORIENT PULSO*De ~R$397.00~Por *R$273.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 14:55
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774374954.jpg
+Caption: *PERFUME BILLION EXCLUSIVE EDITION PARIS ELYSEES*De ~R$67.00~Por *R$22.00*> Presena marcante!Compre aqui: https://tinyurl.com/2833f7d2
+--------------------
+Date: 24/3/2026
+Time: 14:58
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774375090.jpg
+Caption: *RELGIO MONDAINE*De ~R$512.00~Por *R$224.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
+Date: 24/3/2026
+Time: 15:0
+Group ID: HaItSqbexJw55Po8UNovEn
+Image: temp_images_wa\temp_1774375234.jpg
+Caption: *KIT RELGIO*De ~R$78.00~Por *R$57.00*> Preco de bug!Compre aqui: https://tinyurl.com/2ywuwgzz
+--------------------
