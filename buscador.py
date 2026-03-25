@@ -3,15 +3,14 @@ from bs4 import BeautifulSoup
 from flask import Flask, jsonify
 from threading import Thread
 
-# --- 1. CONFIGURAÇÃO DE SEGURANÇA E INTELIGÊNCIA ---
+# --- 1. CONFIGURAÇÃO DE SEGURANÇA ---
 try:
     from config import (
         TOKEN_TELEGRAM, CHAT_ID, MEU_TAG_AFILIADO, MEU_TOOL_ID, 
         GATILHOS_DE_CORTE, CHAMADAS, TERMOS_PESQUISA,
-        MIN_DESCONTO, MIN_RATING # Novos filtros importados aqui
+        MIN_DESCONTO, MIN_RATING
     )
 except ImportError:
-    # Fallbacks de segurança para o Render
     TOKEN_TELEGRAM = os.getenv("TOKEN_TELEGRAM")
     CHAT_ID = os.getenv("CHAT_ID")
     MEU_TAG_AFILIADO = os.getenv("MEU_TAG_AFILIADO")
@@ -27,19 +26,19 @@ try:
 except ImportError:
     def encurtar_link(url): return url
 
-# --- 2. PAINEL DE CONTROLE ---
+# --- 2. STATUS ---
 stats = {"status": "Online", "ofertas_enviadas_hoje": 0, "ultima_varredura": "Nunca"}
 app = Flask('')
 
 @app.route('/')
 def home():
-    return f"<h1>DescontoMEN v32.8 - Elite</h1><p>Filtro: >={MIN_DESCONTO}% desc | >={MIN_RATING} estrelas</p>"
+    return f"<h1>DescontoMEN v32.9</h1><p>Varrendo {len(TERMOS_PESQUISA)} termos | Meta: 20 posts/ciclo</p>"
 
 def run():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
-# --- 3. FUNÇÕES DE TRATAMENTO ---
+# --- 3. TRATAMENTO ---
 
 def limpar_titulo(titulo):
     t = re.sub(r'(?i)rel[oó]gio\w*', 'Relógio', titulo)
@@ -57,7 +56,7 @@ def melhorar_foto_ml(url_foto):
 
 def obter_chamada(nome):
     n = nome.lower()
-    cat = "perfume" if "perfume" in n else "tenis" if "tenis" in n else "roupa" if any(x in n for x in ["camiseta", "roupa", "calça"]) else "geral"
+    cat = "perfume" if "perfume" in n else "tenis" if "tenis" in n else "roupa" if any(x in n for x in ["camiseta", "roupa", "calça", "jeans"]) else "geral"
     return random.choice(CHAMADAS.get(cat, CHAMADAS["geral"]))
 
 def gerar_link_longo(url):
@@ -67,34 +66,41 @@ def gerar_link_longo(url):
         return f"{url.split('#')[0].split('?')[0]}?matt_tool={MEU_TOOL_ID}&matt_word={MEU_TAG_AFILIADO}"
     except: return url
 
-# --- 4. MOTOR DE BUSCA ---
+# --- 4. MOTOR DE ALTA PERFORMANCE ---
 
 def monitor():
     global stats
     scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows'})
-    print(f"🚀 DescontoMEN v32.8 - Filtros: {MIN_DESCONTO}% desc / {MIN_RATING} rating", flush=True)
-
+    
     while True:
         historico = json.load(open("historico_precos.json", 'r')) if os.path.exists("historico_precos.json") else {}
-        stats["status"] = "Varrendo..."
+        stats["status"] = "Iniciando Varredura Massiva..."
         stats["ultima_varredura"] = time.strftime('%H:%M:%S')
+        
         sacola_geral = []
+        
+        # Embaralha os termos para que cada ciclo comece por marcas diferentes
+        termos_ciclo = TERMOS_PESQUISA[:]
+        random.shuffle(termos_ciclo)
 
-        for termo in TERMOS_PESQUISA:
+        print(f"📡 Scan v32.9: Analisando {len(termos_ciclo)} categorias...", flush=True)
+
+        for termo in termos_ciclo:
             try:
-                res = scraper.get(f"https://lista.mercadolivre.com.br/{termo.replace(' ', '-')}", timeout=20)
+                res = scraper.get(f"https://lista.mercadolivre.com.br/{termo.replace(' ', '-')}", timeout=15)
                 if res.status_code == 200:
                     soup = BeautifulSoup(res.text, 'html.parser')
                     cards = soup.select('.poly-card') or soup.select('.ui-search-result__wrapper')
                     
-                    for card in cards:
+                    # LIMITADOR DE PERFORMANCE: Analisar apenas os 5 primeiros de cada termo
+                    for card in cards[:5]:
                         try:
-                            # 1. VALIDAÇÃO DE RATING (FILTRO 1)
+                            # Avaliação
                             r_tag = card.select_one('.poly-reviews__rating') or card.select_one('.ui-search-reviews__rating-number')
                             rating = float(r_tag.text.replace(',', '.')) if r_tag else 0
                             if rating > 0 and rating < MIN_RATING: continue
 
-                            # 2. CAPTURA DE PREÇOS
+                            # Preços
                             p_tags = card.select('.andes-money-amount__fraction')
                             p_old, p_new = 0, 0
                             if len(p_tags) >= 2:
@@ -105,9 +111,8 @@ def monitor():
                                     p_old, p_new = float(p_old_tag.text.replace('.','')), float(p_tags[0].text.replace('.',''))
 
                             if p_old > 0 and p_new < p_old:
-                                # 3. CÁLCULO DE DESCONTO (FILTRO 2)
                                 desc = int(100 - ((p_new * 100) / p_old))
-                                if desc < MIN_DESCONTO: continue # Ignora se for < 15%
+                                if desc < MIN_DESCONTO: continue
 
                                 nome_limpo = limpar_titulo((card.select_one('.poly-component__title') or card.select_one('h2')).text)
                                 
@@ -125,17 +130,28 @@ def monitor():
                                     markup = {"inline_keyboard": [[{"text": "🛒 VER OFERTA NO ML", "url": link}]]}
                                     sacola_geral.append({'foto': foto, 'msg': msg, 'markup': markup})
                         except: continue
+                # Pequeno delay para não ser bloqueado pelo ML
+                time.sleep(1)
             except: continue
 
+        # --- ENVIO DAS 20 MELHORES ---
         if sacola_geral:
+            print(f"💎 Varredura Completa: {len(sacola_geral)} ofertas de ELITE encontradas.", flush=True)
             random.shuffle(sacola_geral)
-            for item in sacola_geral[:10]:
-                requests.post(f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendPhoto", 
-                             json={"chat_id": CHAT_ID, "photo": item['foto'], "caption": item['msg'], "parse_mode": "HTML", "reply_markup": item['markup']})
-                stats["ofertas_enviadas_hoje"] += 1
-                time.sleep(15)
+            
+            # Aumentado para 20 itens
+            for item in sacola_geral[:20]:
+                try:
+                    requests.post(f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendPhoto", 
+                                 json={"chat_id": CHAT_ID, "photo": item['foto'], "caption": item['msg'], "parse_mode": "HTML", "reply_markup": item['markup']}, timeout=15)
+                    stats["ofertas_enviadas_hoje"] += 1
+                    # Delay de 15s entre posts para o Telegram não marcar como spam
+                    time.sleep(15)
+                except: continue
 
         json.dump(historico, open("historico_precos.json", 'w'), indent=4)
+        stats["status"] = "Dormindo (Aguardando próxima volta)"
+        print("😴 Ciclo de volume finalizado. Dormindo 10 min...", flush=True)
         time.sleep(600)
 
 def self_ping():
