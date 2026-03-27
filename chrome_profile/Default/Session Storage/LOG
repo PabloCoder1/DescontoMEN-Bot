@@ -1,9 +1,5 @@
-2026/03/26-15:19:41.689 3580 Reusing MANIFEST C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Session Storage/MANIFEST-000001
-2026/03/26-15:19:41.690 3580 Recovering log #10
-2026/03/26-15:19:41.692 3580 Reusing old log C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Session Storage/000010.log 
-2026/03/26-16:37:26.126 6b88 Level-0 table #14: started
-2026/03/26-16:37:26.136 6b88 Level-0 table #14: 26506 bytes OK
-2026/03/26-16:37:26.138 6b88 Delete type=0 #10
-2026/03/26-17:45:22.346 6060 Level-0 table #16: started
-2026/03/26-17:45:22.349 6060 Level-0 table #16: 46004 bytes OK
-2026/03/26-17:45:22.352 6060 Delete type=0 #13
+2026/03/26-19:11:50.579 6dd8 Reusing MANIFEST C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Session Storage/MANIFEST-000001
+2026/03/26-19:11:50.580 6dd8 Recovering log #15
+2026/03/26-19:11:50.582 6dd8 Reusing old log C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Session Storage/000015.log 
+2026/03/26-20:14:20.889 e08 Level-0 table #19: started
+2026/03/26-20:14:20.893 e08 Level-0 table #19: 19370 bytes OK

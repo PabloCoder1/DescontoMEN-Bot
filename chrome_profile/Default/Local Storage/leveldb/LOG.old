@@ -1,6 +1,3 @@
-2026/03/26-15:03:19.292 696c Reusing MANIFEST C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Local Storage\leveldb/MANIFEST-000001
-2026/03/26-15:03:19.295 696c Recovering log #4
-2026/03/26-15:03:19.297 696c Reusing old log C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Local Storage\leveldb/000004.log 
-2026/03/26-15:14:30.256 51ac Level-0 table #8: started
-2026/03/26-15:14:30.265 51ac Level-0 table #8: 8887 bytes OK
-2026/03/26-15:14:30.266 51ac Delete type=0 #4
+2026/03/26-18:52:25.979 52e4 Reusing MANIFEST C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/03/26-18:52:25.983 52e4 Recovering log #12
+2026/03/26-18:52:25.985 52e4 Reusing old log C:\Users\PABLOLIMADOSSANTOS\Documents\ProjetosPython\monitor_ofertas_ml\chrome_profile\Default\Local Storage\leveldb/000012.log 

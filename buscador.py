@@ -26,7 +26,7 @@ try:
     URL_GERADOR_ML = config.URL_GERADOR_ML
     TAG_AFILIADO = config.MEU_TAG_AFILIADO
     TOOL_ID = config.MEU_TOOL_ID
-    print(f"✅ [SISTEMA] v38.8 - Limpeza de Link Click1 Reforçada!")
+    print(f"✅ [SISTEMA] v39.0 - Trava Anti-Parcela e Strict Mode Ativos!")
 except Exception as e:
     print(f"⚠️ [ERRO] Falha no config.py: {e}")
     URL_GERADOR_ML = "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub"
@@ -49,23 +49,16 @@ def obter_chamada_inteligente(nome_produto):
     else: cat = "geral"
     return random.choice(CHAMADAS.get(cat, CHAMADAS["geral"]))
 
-# --- 3. MOTOR DE URL (CORREÇÃO CRÍTICA DO CLICK1) ---
+# --- 3. MOTOR DE URL E RPA ---
 
 def limpar_url_pure(url_original):
-    """Garante que apenas links REAIS de produtos cheguem ao gerador."""
     if "click1.mercadolivre" in url_original:
-        # Busca o ID MLB em qualquer parte da URL (no parâmetro wid ou na própria rota)
         match = re.search(r'(MLB-?\d+)', url_original)
         if match:
-            # Extrai apenas os números (ex: MLB-12345 -> 12345)
             id_limpo = re.sub(r'\D', '', match.group(1))
-            print(f"   🎯 [URL] Convertendo Click1 para: MLB-{id_limpo}")
             return f"https://produto.mercadolivre.com.br/MLB-{id_limpo}"
         else:
-            # Se for anúncio e não achamos o ID, retornamos None para o bot ignorar
             return None
-    
-    # Se for link normal, removemos o rastreio (tudo após o ?)
     return url_original.split('?')[0].split('#')[0]
 
 def gerar_link_meli_rpa(driver, url_limpa):
@@ -84,7 +77,6 @@ def gerar_link_meli_rpa(driver, url_limpa):
         btn = wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Gerar')]")))
         driver.execute_script("arguments[0].click();", btn)
         
-        # Captura com Regex (Anti-lixo na mensagem)
         for tentativa in range(12):
             try:
                 elementos = driver.find_elements(By.XPATH, "//input[contains(@value, 'meli.la')] | //*[contains(text(), 'meli.la')]")
@@ -94,19 +86,21 @@ def gerar_link_meli_rpa(driver, url_limpa):
                     if match: return match.group(1)
             except: pass
             time.sleep(1.5)
-        raise Exception("Timeout meli.la")
-    except Exception as e:
-        print(f" ⚠️ [RPA] Falha: {e}. Usando Fallback.")
-        url_enc = urllib.parse.quote(url_limpa)
-        return f"https://www.mercadolivre.com.br/social/{TAG_AFILIADO}?matt_word={TAG_AFILIADO}&matt_tool={TOOL_ID}&forceInApp=true&ref={url_enc}"
+            
+        print("   ⚠️ [RPA] Timeout do meli.la.")
+        return None
 
-# --- FUNÇÃO DE PREÇO (CENTENA VS MILHAR) ---
+    except Exception as e:
+        print(f"   ⚠️ [RPA] Falha Crítica: {e}")
+        return None
+
+# --- FUNÇÃO DE PREÇO BLINDADA ---
 def extrair_preco(tag):
+    if not tag: return 0.0 # Proteção extra caso o container venha vazio
     inteiro_tag = tag.select_one('.andes-money-amount__fraction')
     centavos_tag = tag.select_one('.andes-money-amount__cents')
     if not inteiro_tag: return 0.0
     
-    # Remove o ponto de milhar para não virar dezenas de milhares
     inteiro_texto = inteiro_tag.text.replace('.', '')
     valor_final = f"{inteiro_texto}.{centavos_tag.text}" if centavos_tag else inteiro_texto
     try: return float(valor_final)
@@ -116,7 +110,7 @@ def extrair_preco(tag):
 
 def monitor():
     sistema = platform.system()
-    print(f"🚀 v38.8 MASTERMIND | Sistema: {sistema}")
+    print(f"🚀 v39.0 IRONCLAD | Sistema: {sistema}")
     options = uc.ChromeOptions()
     options.add_argument(f"--user-data-dir={os.path.join(os.getcwd(), 'chrome_profile')}")
     driver = uc.Chrome(options=options, version_main=146) if sistema == "Windows" else uc.Chrome(options=options)
@@ -124,7 +118,7 @@ def monitor():
     if sistema == "Windows":
         driver.get(URL_GERADOR_ML)
         print("\n" + "="*50 + "\nLOGUE NA CENTRAL E APERTE ENTER NO TERMINAL\n" + "="*50)
-        input("👉 Vamos gerar esses links?")
+        input("👉 Validado? Aperte ENTER...")
 
     while True:
         try:
@@ -153,13 +147,19 @@ def monitor():
                         m_r = re.search(r'(\d[.,]\d)\s*(?=estrelas|de 5|avalia|nota|\()', txt)
                         if m_r: rating = float(m_r.group(1).replace(',', '.'))
 
-                        precos_tags = card.select('.andes-money-amount')
-                        if len(precos_tags) >= 2:
-                            p_old = extrair_preco(precos_tags[0])
-                            p_new = extrair_preco(precos_tags[1])
+                        # 🔥 A CORREÇÃO MESTRA: SELETORES ESPECÍFICOS PARA IGNORAR PARCELAS
+                        c_antigo = card.select_one('.andes-money-amount--previous')
+                        c_atual = card.select_one('.poly-price__current .andes-money-amount') or \
+                                  card.select_one('.ui-search-price__second-line .andes-money-amount')
+
+                        if c_antigo and c_atual:
+                            p_old = extrair_preco(c_antigo)
+                            p_new = extrair_preco(c_atual)
                             
                             if p_old > 0 and p_new > 0:
                                 desc = int(100 - ((p_new * 100) / p_old))
+                                
+                                # Trava contra bugs bizarros (ex: desconto de 95% = erro de leitura)
                                 if desc > 90: continue 
 
                                 if rating >= MIN_RATING and desc >= MIN_DESCONTO:
@@ -167,9 +167,8 @@ def monitor():
                                     nome_ninja = limpar_titulo_ninja(raw_title)
 
                                     if nome_ninja not in historico or p_new < (historico[nome_ninja] - 1):
-                                        # LIMPEZA CRÍTICA AQUI
                                         link_puro = limpar_url_pure(card.select_one('a')['href'])
-                                        if not link_puro: continue # Ignora se for click1 sem ID
+                                        if not link_puro: continue 
                                         
                                         img = card.select_one('img')
                                         foto = (img.get('data-src') or img.get('src')).replace("-I.jpg", "-O.jpg")
@@ -184,6 +183,11 @@ def monitor():
                 if candidatos:
                     for item in candidatos:
                         link_meli = gerar_link_meli_rpa(driver, item['link_limpo'])
+                        
+                        if not link_meli:
+                            print(f"   ⏭️ Cancelado: Link meli.la falhou para '{item['nome'][:15]}...'")
+                            continue
+
                         frase = obter_chamada_inteligente(item['nome'])
                         
                         msg = (f"🔥 *{item['nome'].upper()}* 🔥\n\n"
@@ -195,14 +199,14 @@ def monitor():
                         requests.post(f"{EVOLUTION_API_URL}/message/sendMedia/{EVOLUTION_INSTANCE}", 
                                       json={"number": WA_GROUP_ID, "mediatype": "image", "media": item['foto'], "caption": msg},
                                       headers={"Content-Type": "application/json", "apikey": EVOLUTION_API_KEY}, verify=False)
-                        print(f" 📲 Enviado: {item['nome']}")
+                        print(f" 📲 Enviado c/ Sucesso: {item['nome']} (R$ {item['p_new']})")
                         time.sleep(random.randint(45, 65))
 
             with open("historico_precos.json", 'w') as f: json.dump(historico, f, indent=4)
             print("\n😴 Ciclo OK. Dormindo 15 min...")
             time.sleep(900)
         except Exception as e:
-            print(f"💥 Erro: {e}")
+            print(f"💥 Erro no Loop: {e}")
             time.sleep(60)
 
 if __name__ == "__main__":
